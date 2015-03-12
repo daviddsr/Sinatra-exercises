@@ -1,6 +1,14 @@
 require 'sinatra'
 require 'data_mapper'
 require 'builder'
+require 'rack-flash'
+require 'sinatra/redirect_with_flash'
+
+enable :sessions
+use Rack::Flash, :sweep => true
+
+SITE_TITLE = "Recall"
+SITE_DESCRIPTION = "cause you're too busy to remember"
 
 DataMapper::setup(:default, "sqlite3://#{Dir.pwd}/recall.db")
 
@@ -23,6 +31,9 @@ end
 get '/' do
 	@notes = Note.all :order => :id.desc
 	@title = 'All notes'
+	if @notes.empty?
+		flash[:error] = "No notes found. Add your first below."
+	end
 	erb :home
 end
 
